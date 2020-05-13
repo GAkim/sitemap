@@ -7,32 +7,12 @@
  * @license OSL-3.0
 -->
 
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <type name="ScandiPWA\Sitemap\Model\ItemProvider\Product">
-        <arguments>
-            <argument name="configReader" xsi:type="object">Magento\Sitemap\Model\ItemProvider\ProductConfigReader</argument>
-        </arguments>
-    </type>
-    <type name="ScandiPWA\Sitemap\Model\ItemProvider\Category">
-        <arguments>
-            <argument name="configReader" xsi:type="object">Magento\Sitemap\Model\ItemProvider\CategoryConfigReader</argument>
-        </arguments>
-    </type>
-    <type name="ScandiPWA\Sitemap\Model\ItemProvider\CmsPage">
-        <arguments>
-            <argument name="configReader" xsi:type="object">Magento\Sitemap\Model\ItemProvider\CmsPageConfigReader</argument>
-        </arguments>
-    </type>
-    <preference for="Magento\Sitemap\Model\Sitemap" type="ScandiPWA\Sitemap\Model\Sitemap"/>
-    <virtualType name="ScandiPWA\Sitemap\Model\ItemProvider\Composite" type="Magento\Sitemap\Model\ItemProvider\Composite">
-        <arguments>
-            <argument name="itemProviders" xsi:type="array">
-                <item name="categoryProvider" xsi:type="object">ScandiPWA\Sitemap\Model\ItemProvider\Category</item>
-                <item name="cmsPageProvider" xsi:type="object">ScandiPWA\Sitemap\Model\ItemProvider\CmsPage</item>
-                <item name="productProvider" xsi:type="object">ScandiPWA\Sitemap\Model\ItemProvider\Product</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <preference for="Magento\Sitemap\Model\ItemProvider\ItemProviderInterface" type="ScandiPWA\Sitemap\Model\ItemProvider\Composite" />
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Magento\Sitemap\Model\ItemProvider\Product"
+                type="ScandiPwa\Sitemap\Model\ItemProvider\Product" />
+    <preference for="Magento\Sitemap\Model\ItemProvider\Category"
+                type="ScandiPwa\Sitemap\Model\ItemProvider\Category" />
+    <preference for="Magento\Sitemap\Controller\Adminhtml\Sitemap\Generate"
+                type="ScandiPwa\Sitemap\Controller\Adminhtml\Sitemap\Generate" />
 </config>

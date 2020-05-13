@@ -9,13 +9,13 @@
 
 namespace ScandiPWA\Sitemap\Model\ItemProvider;
 
-
-use Magento\Sitemap\Model\ItemProvider\ConfigReaderInterface;
-use Magento\Sitemap\Model\ItemProvider\ItemProviderInterface;
 use Magento\Sitemap\Model\ResourceModel\Catalog\CategoryFactory;
 use Magento\Sitemap\Model\SitemapItemInterfaceFactory;
+use Magento\Sitemap\Model\ItemProvider\ConfigReaderInterface;
+use Magento\Sitemap\Model\ItemProvider\Category as SourceCategory;
+use Magento\Sitemap\Model\ItemProvider\ItemProviderInterface;
 
-class Category implements ItemProviderInterface
+class Category extends SourceCategory implements ItemProviderInterface
 {
     /**
      * Category factory
@@ -23,21 +23,21 @@ class Category implements ItemProviderInterface
      * @var CategoryFactory
      */
     private $categoryFactory;
-    
+
     /**
      * Sitemap item factory
      *
      * @var SitemapItemInterfaceFactory
      */
     private $itemFactory;
-    
+
     /**
      * Config reader
      *
      * @var ConfigReaderInterface
      */
     private $configReader;
-    
+
     /**
      * CategorySitemapItemResolver constructor.
      *
@@ -54,7 +54,17 @@ class Category implements ItemProviderInterface
         $this->itemFactory = $itemFactory;
         $this->configReader = $configReader;
     }
-    
+
+    /**
+     * @param $url
+     * @return string
+     */
+    function getFormattedUrl($url)
+    {
+        $urlNoHtml = str_replace('.html', '', $url);
+        return 'category/' . $urlNoHtml;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -62,16 +72,17 @@ class Category implements ItemProviderInterface
     {
         $collection = $this->categoryFactory->create()
             ->getCollection($storeId);
+
         $items = array_map(function ($item) use ($storeId) {
             return $this->itemFactory->create([
-                'url' => DIRECTORY_SEPARATOR . rtrim($item->getUrl(), '.html'),
+                'url' => $this->getFormattedUrl($item->getUrl()),
                 'updatedAt' => $item->getUpdatedAt(),
                 'images' => $item->getImages(),
                 'priority' => $this->configReader->getPriority($storeId),
                 'changeFrequency' => $this->configReader->getChangeFrequency($storeId),
             ]);
         }, $collection);
-        
+
         return $items;
     }
 }

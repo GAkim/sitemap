@@ -9,19 +9,20 @@
 
 namespace ScandiPWA\Sitemap\Model\ItemProvider;
 
-use Magento\Sitemap\Model\ItemProvider\ConfigReaderInterface;
-use Magento\Sitemap\Model\ItemProvider\ItemProviderInterface;
-use Magento\Sitemap\Model\ResourceModel\Catalog\ProductFactory;
+use Magento\Sitemap\Model\ResourceModel\Catalog\CategoryFactory;
 use Magento\Sitemap\Model\SitemapItemInterfaceFactory;
+use Magento\Sitemap\Model\ItemProvider\ConfigReaderInterface;
+use Magento\Sitemap\Model\ItemProvider\Category as SourceCategory;
+use Magento\Sitemap\Model\ItemProvider\ItemProviderInterface;
 
-class Product implements ItemProviderInterface
+class Category extends SourceCategory implements ItemProviderInterface
 {
     /**
-     * Product factory
+     * Category factory
      *
-     * @var ProductFactory
+     * @var CategoryFactory
      */
-    private $productFactory;
+    private $categoryFactory;
 
     /**
      * Sitemap item factory
@@ -38,20 +39,30 @@ class Product implements ItemProviderInterface
     private $configReader;
 
     /**
-     * ProductSitemapItemResolver constructor.
+     * CategorySitemapItemResolver constructor.
      *
      * @param ConfigReaderInterface $configReader
-     * @param ProductFactory $productFactory
+     * @param CategoryFactory $categoryFactory
      * @param SitemapItemInterfaceFactory $itemFactory
      */
     public function __construct(
         ConfigReaderInterface $configReader,
-        ProductFactory $productFactory,
+        CategoryFactory $categoryFactory,
         SitemapItemInterfaceFactory $itemFactory
     ) {
-        $this->productFactory = $productFactory;
+        $this->categoryFactory = $categoryFactory;
         $this->itemFactory = $itemFactory;
         $this->configReader = $configReader;
+    }
+
+    /**
+     * @param $url
+     * @return string
+     */
+    function getFormattedUrl($url)
+    {
+        $urlNoHtml = str_replace('.html', '', $url);
+        return 'category/' . $urlNoHtml;
     }
 
     /**
@@ -59,12 +70,12 @@ class Product implements ItemProviderInterface
      */
     public function getItems($storeId)
     {
-        $collection = $this->productFactory->create()
+        $collection = $this->categoryFactory->create()
             ->getCollection($storeId);
 
         $items = array_map(function ($item) use ($storeId) {
             return $this->itemFactory->create([
-                'url' => $this->generateUrl($item->getUrl()),
+                'url' => $this->getFormattedUrl($item->getUrl()),
                 'updatedAt' => $item->getUpdatedAt(),
                 'images' => $item->getImages(),
                 'priority' => $this->configReader->getPriority($storeId),
@@ -73,10 +84,5 @@ class Product implements ItemProviderInterface
         }, $collection);
 
         return $items;
-    }
-    
-    private function generateUrl($itemUrl)
-    {
-        return DIRECTORY_SEPARATOR . rtrim($itemUrl, '.html') . '?variant=0';
     }
 }
